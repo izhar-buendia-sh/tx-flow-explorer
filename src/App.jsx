@@ -837,6 +837,102 @@ function CMSEditor({ data, onUpdate, onClose }) {
   );
 }
 
+// ─── PASSWORD GATE ──────────────────────────────────────────────────
+const PASS_HASH = "a3c2f8d1e5";
+function hashPass(s) { let h = 0; for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(16).slice(0, 10); }
+const EXPECTED = hashPass("ppx2025");
+
+function PasswordGate({ children }) {
+  const [authed, setAuthed] = useState(() => sessionStorage.getItem("ppx_auth") === EXPECTED);
+  const [input, setInput] = useState("");
+  const [error, setError] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (hashPass(input) === EXPECTED) {
+      sessionStorage.setItem("ppx_auth", EXPECTED);
+      setAuthed(true);
+    } else {
+      setError(true);
+      setInput("");
+    }
+  };
+
+  if (authed) return children;
+
+  return (
+    <div style={{
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: BW.bg.base,
+      fontFamily: BW.font,
+    }}>
+      <form onSubmit={handleSubmit} style={{
+        background: BW.bg.surface,
+        border: `1px solid ${BW.border.default}`,
+        borderRadius: BW.radius.lg,
+        padding: "40px 36px",
+        width: 340,
+        textAlign: "center",
+        boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
+      }}>
+        <div style={{
+          width: 48, height: 48, borderRadius: BW.radius.md,
+          background: BW.brand, color: BW.text.onFill,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: 22, margin: "0 auto 16px",
+        }}>🔒</div>
+        <div style={{ fontSize: 20, fontWeight: 700, color: BW.text.default, marginBottom: 6 }}>
+          Order Flow Explorer
+        </div>
+        <div style={{ fontSize: 13, color: BW.text.subtle, marginBottom: 24 }}>
+          Enter password to continue
+        </div>
+        <input
+          type="password"
+          value={input}
+          onChange={e => { setInput(e.target.value); setError(false); }}
+          placeholder="Password"
+          autoFocus
+          style={{
+            width: "100%",
+            padding: "14px 16px",
+            border: `1px solid ${error ? BW.error.fill : BW.border.default}`,
+            borderRadius: 12,
+            fontSize: 14,
+            fontFamily: BW.font,
+            boxSizing: "border-box",
+            background: BW.bg.base,
+            outline: "none",
+            marginBottom: 12,
+          }}
+        />
+        {error && (
+          <div style={{ fontSize: 12, color: BW.error.text, marginBottom: 12 }}>
+            Incorrect password. Please try again.
+          </div>
+        )}
+        <button type="submit" style={{
+          width: "100%",
+          padding: "12px 0",
+          background: BW.brand,
+          color: BW.text.onFill,
+          border: "none",
+          borderRadius: BW.radius.sm,
+          fontSize: 14,
+          fontWeight: 600,
+          fontFamily: BW.font,
+          cursor: "pointer",
+        }}>
+          Continue
+        </button>
+      </form>
+    </div>
+  );
+}
+
 // ─── MAIN APP ──────────────────────────────────────────────────────
 export default function TransactionStateExplorer() {
   const [data, setData] = useState(DEFAULT_DATA);
@@ -863,6 +959,7 @@ export default function TransactionStateExplorer() {
   const categories = ["all", ...new Set(data.ticketTypes.map(t => t.category))];
 
   return (
+    <PasswordGate>
     <div style={{
       minHeight: "100vh",
       background: BW.bg.base,
@@ -1342,5 +1439,6 @@ export default function TransactionStateExplorer() {
         />
       )}
     </div>
+    </PasswordGate>
   );
 }
