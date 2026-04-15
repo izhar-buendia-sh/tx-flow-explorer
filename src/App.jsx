@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
+import emptyStateIllustration from "./assets/empty-state.svg";
 
 // ─── DATA LAYER (editable CMS database) ────────────────────────────
 const DEFAULT_DATA = {
@@ -180,22 +181,39 @@ const DEFAULT_DATA = {
   },
 };
 
-// ─── PHASE COLORS ──────────────────────────────────────────────────
+// ─── BROADWAY DESIGN TOKENS ─────────────────────────────────────────
+const BW = {
+  font: "Helvetica Neue, Helvetica, Arial, sans-serif",
+  brand: "#6E3EC1",
+  brandLight: "#DFD4F1",
+  brandDark: "#4A2390",
+  accent: "#6E3EC1",
+  text: { default: "#1A1A2E", subtle: "#6B6B80", disabled: "#ACACB9", onFill: "#FFFFFF", link: "#6E3EC1", brand: "#6E3EC1" },
+  bg: { base: "#FAFAFC", surface: "#FFFFFF", surfaceAccent: "#F3EEFB", overlay: "rgba(0,0,0,0.5)" },
+  border: { default: "#E0DDE6", subtle: "#EEEDF2", accent: "#C9BCE0" },
+  success: { text: "#0D6E3F", bg: "#E8F8EF", border: "#B0E5C9", fill: "#0D6E3F" },
+  warning: { text: "#8A4100", bg: "#FFF4E6", border: "#FFD19A", fill: "#B25000" },
+  error: { text: "#C41C00", bg: "#FFF0ED", border: "#FFBCB0", fill: "#C41C00" },
+  info: { text: "#0055AA", bg: "#EBF4FF", border: "#A9CFFF", fill: "#0066CC" },
+  radius: { sm: 6, md: 10, lg: 16 },
+};
+
+// ─── PHASE COLORS (Broadway-aligned) ────────────────────────────────
 const PHASE_CONFIG = {
-  payment: { color: "#6366f1", bg: "#eef2ff", label: "Payment", border: "#c7d2fe" },
-  seller: { color: "#f59e0b", bg: "#fffbeb", label: "Seller", border: "#fde68a" },
-  settlement: { color: "#8b5cf6", bg: "#f5f3ff", label: "Settlement", border: "#ddd6fe" },
-  substitution: { color: "#ec4899", bg: "#fdf2f8", label: "Substitution", border: "#fbcfe8" },
-  fulfillment: { color: "#06b6d4", bg: "#ecfeff", label: "Fulfillment", border: "#a5f3fc" },
-  success: { color: "#10b981", bg: "#ecfdf5", label: "Success", border: "#a7f3d0" },
-  terminal: { color: "#ef4444", bg: "#fef2f2", label: "Terminal", border: "#fecaca" },
+  payment: { color: BW.brand, bg: BW.bg.surfaceAccent, label: "Payment", border: BW.border.accent },
+  seller: { color: BW.warning.fill, bg: BW.warning.bg, label: "Seller", border: BW.warning.border },
+  settlement: { color: BW.info.fill, bg: BW.info.bg, label: "Settlement", border: BW.info.border },
+  substitution: { color: "#9C27B0", bg: "#F9F0FA", label: "Substitution", border: "#E1BEE7" },
+  fulfillment: { color: "#0077B6", bg: "#E8F4FD", label: "Fulfillment", border: "#90CAF9" },
+  success: { color: BW.success.fill, bg: BW.success.bg, label: "Success", border: BW.success.border },
+  terminal: { color: BW.error.fill, bg: BW.error.bg, label: "Terminal", border: BW.error.border },
 };
 
 const CATEGORY_COLORS = {
-  Physical: "#d97706",
-  Digital: "#6366f1",
-  Mobile: "#06b6d4",
-  Special: "#8b5cf6",
+  Physical: BW.warning.fill,
+  Digital: BW.brand,
+  Mobile: "#0077B6",
+  Special: "#9C27B0",
 };
 
 // ─── COMPONENTS ────────────────────────────────────────────────────
@@ -234,12 +252,12 @@ function StateNode({ stateId, state, isActive, isHighlighted, isDiff, isSameAsHa
       <div style={{
         background: isActive ? phase.color : isDiff ? "#fff7ed" : phase.bg,
         color: isActive ? "#fff" : isDiff ? "#ea580c" : phase.color,
-        border: `2px solid ${isActive ? phase.color : isDiff ? "#fb923c" : phase.border}`,
+        border: `1px solid ${isActive ? phase.color : isDiff ? "#fb923c" : phase.border}`,
         borderRadius: 10,
-        padding: compact ? "6px 10px" : "10px 16px",
+        padding: compact ? 12 : "10px 16px",
         fontSize: compact ? 11 : 13,
-        fontWeight: isDiff ? 800 : 600,
-        fontFamily: "'DM Sans', sans-serif",
+        fontWeight: isDiff ? 700 : 500,
+        fontFamily: BW.font,
         whiteSpace: "nowrap",
         boxShadow: isActive ? `0 4px 16px ${phase.color}44` : isDiff ? "0 2px 12px #f9731633" : "0 1px 3px rgba(0,0,0,0.06)",
         minWidth: compact ? 60 : 80,
@@ -277,14 +295,14 @@ function StateNode({ stateId, state, isActive, isHighlighted, isDiff, isSameAsHa
           transform: "translateX(-50%)",
           marginTop: 8,
           background: "#1e293b",
-          color: "#f1f5f9",
+          color: BW.border.subtle,
           borderRadius: 8,
           padding: "12px 16px",
           fontSize: 12,
           width: 220,
           zIndex: 100,
           boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
-          fontFamily: "'DM Sans', sans-serif",
+          fontFamily: BW.font,
         }}>
           <div style={{ fontWeight: 700, marginBottom: 4 }}>{state.name}</div>
           <div style={{ opacity: 0.7, marginBottom: 8 }}>{state.desc}</div>
@@ -304,9 +322,9 @@ function StateNode({ stateId, state, isActive, isHighlighted, isDiff, isSameAsHa
 
 function FlowArrow({ compact }) {
   return (
-    <div style={{ display: "inline-flex", alignItems: "center", padding: compact ? "0 2px" : "0 4px" }}>
-      <svg width={compact ? 16 : 24} height="12" viewBox="0 0 24 12">
-        <path d="M0 6 L18 6 M14 2 L20 6 L14 10" fill="none" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <div style={{ display: "inline-flex", alignItems: "center", padding: "0 8px" }}>
+      <svg width={compact ? 14 : 24} height="12" viewBox="0 0 24 12">
+        <path d="M0 6 L18 6 M14 2 L20 6 L14 10" fill="none" stroke={BW.text.disabled} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     </div>
   );
@@ -378,8 +396,8 @@ function FlowVisualization({ path, states, activeState, onStateClick, label, isH
         <div style={{
           fontSize: 12,
           fontWeight: 600,
-          fontFamily: "'DM Sans', sans-serif",
-          color: isHappy ? "#10b981" : "#64748b",
+          fontFamily: BW.font,
+          color: isHappy ? "#10b981" : BW.text.subtle,
           marginBottom: 8,
           display: "flex",
           alignItems: "center",
@@ -397,7 +415,7 @@ function FlowVisualization({ path, states, activeState, onStateClick, label, isH
               background: "#fff7ed",
               border: "1px solid #fed7aa",
               borderRadius: 6,
-              padding: "2px 8px",
+              padding: "6px 8px",
               display: "inline-flex",
               alignItems: "center",
               gap: 3,
@@ -415,7 +433,7 @@ function FlowVisualization({ path, states, activeState, onStateClick, label, isH
               background: "#fef2f2",
               border: "1px solid #fecaca",
               borderRadius: 6,
-              padding: "2px 8px",
+              padding: "6px 8px",
               display: "inline-flex",
               alignItems: "center",
               gap: 3,
@@ -433,7 +451,7 @@ function FlowVisualization({ path, states, activeState, onStateClick, label, isH
               background: "#ecfdf5",
               border: "1px solid #a7f3d0",
               borderRadius: 6,
-              padding: "2px 8px",
+              padding: "6px 8px",
               display: "inline-flex",
               alignItems: "center",
               gap: 3,
@@ -447,11 +465,11 @@ function FlowVisualization({ path, states, activeState, onStateClick, label, isH
         display: "flex",
         alignItems: "center",
         flexWrap: "wrap",
-        gap: 4,
+        gap: "12px 0",
         padding: "12px 16px",
-        background: isHappy ? "#f0fdf4" : (diffSummary && diffSummary.added.length > 0) ? "#fffbf5" : "#f8fafc",
+        background: isHappy ? "#f0fdf4" : (diffSummary && diffSummary.added.length > 0) ? "#fffbf5" : BW.bg.base,
         borderRadius: 12,
-        border: isHappy ? "1px solid #bbf7d0" : (diffSummary && diffSummary.added.length > 0) ? "1px solid #fed7aa" : "1px solid #e2e8f0",
+        border: isHappy ? "1px solid #bbf7d0" : (diffSummary && diffSummary.added.length > 0) ? "1px solid #fed7aa" : `1px solid ${BW.border.default}`,
       }}>
         {path.map((stateId, i) => {
           const hasDiffs = diffMap && diffMap.diffIndices.size > 0;
@@ -503,7 +521,7 @@ function PhoneMockup({ state, ticketType, phase }) {
         flexDirection: "column",
       }}>
         {/* Status bar */}
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 20px 4px", fontSize: 11, color: "#64748b" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 20px 4px", fontSize: 11, color: BW.text.subtle }}>
           <span>9:41</span>
           <span>⚡ 87%</span>
         </div>
@@ -513,10 +531,10 @@ function PhoneMockup({ state, ticketType, phase }) {
         </div>
         {/* Content */}
         <div style={{ flex: 1, padding: "0 16px 16px", display: "flex", flexDirection: "column" }}>
-          <div style={{ fontSize: 10, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1.5, fontWeight: 700, marginBottom: 4, fontFamily: "'DM Sans', sans-serif" }}>
+          <div style={{ fontSize: 10, color: BW.text.disabled, textTransform: "uppercase", letterSpacing: 1.5, fontWeight: 700, marginBottom: 4, fontFamily: BW.font }}>
             Order Status
           </div>
-          <div style={{ fontSize: 18, fontWeight: 800, color: "#0f172a", marginBottom: 16, fontFamily: "'DM Sans', sans-serif" }}>
+          <div style={{ fontSize: 18, fontWeight: 800, color: BW.text.default, marginBottom: 16, fontFamily: BW.font }}>
             {ticketType?.name || "Ticket"}
           </div>
 
@@ -537,10 +555,10 @@ function PhoneMockup({ state, ticketType, phase }) {
             }}>
               {isSuccess ? "✓" : isError ? "✕" : state.phase === "fulfillment" ? "📦" : state.phase === "seller" ? "⏳" : "💳"}
             </div>
-            <div style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", marginBottom: 4, fontFamily: "'DM Sans', sans-serif" }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: BW.text.default, marginBottom: 4, fontFamily: BW.font }}>
               {state.buyerSees}
             </div>
-            <div style={{ fontSize: 12, color: "#64748b", lineHeight: 1.4, fontFamily: "'DM Sans', sans-serif" }}>
+            <div style={{ fontSize: 12, color: BW.text.subtle, lineHeight: 1.4, fontFamily: BW.font }}>
               {state.desc}
             </div>
           </div>
@@ -557,7 +575,7 @@ function PhoneMockup({ state, ticketType, phase }) {
                     flex: 1,
                     height: 4,
                     borderRadius: 2,
-                    background: isFilled ? (isSuccess && i === 3 ? "#10b981" : p.color) : "#e2e8f0",
+                    background: isFilled ? (isSuccess && i === 3 ? "#10b981" : p.color) : BW.border.default,
                     transition: "all 0.3s",
                   }} />
                 );
@@ -565,7 +583,7 @@ function PhoneMockup({ state, ticketType, phase }) {
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
               {["Pay", "Confirm", "Fulfill", "Done"].map(l => (
-                <span key={l} style={{ fontSize: 9, color: "#94a3b8", fontFamily: "'DM Sans', sans-serif" }}>{l}</span>
+                <span key={l} style={{ fontSize: 9, color: BW.text.disabled, fontFamily: BW.font }}>{l}</span>
               ))}
             </div>
           </div>
@@ -578,10 +596,10 @@ function PhoneMockup({ state, ticketType, phase }) {
             padding: 12,
             marginBottom: 12,
           }}>
-            <div style={{ fontSize: 9, textTransform: "uppercase", letterSpacing: 1, color: "#92400e", fontWeight: 700, marginBottom: 4, fontFamily: "'DM Sans', sans-serif" }}>
+            <div style={{ fontSize: 9, textTransform: "uppercase", letterSpacing: 1, color: "#92400e", fontWeight: 700, marginBottom: 4, fontFamily: BW.font }}>
               Seller View
             </div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: "#78350f", fontFamily: "'DM Sans', sans-serif" }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: "#78350f", fontFamily: BW.font }}>
               {state.sellerSees}
             </div>
           </div>
@@ -599,7 +617,7 @@ function PhoneMockup({ state, ticketType, phase }) {
               padding: "6px 14px",
               fontSize: 11,
               fontWeight: 700,
-              fontFamily: "'DM Sans', sans-serif",
+              fontFamily: BW.font,
             }}>
               TransactionState: {Object.keys(PHASE_CONFIG).indexOf(state.phase) > -1 ? Object.entries(DEFAULT_DATA.transactionStates).find(([k, v]) => v === state)?.[0] : "?"} — {state.name}
             </div>
@@ -657,14 +675,14 @@ function CMSEditor({ data, onUpdate, onClose }) {
           justifyContent: "space-between",
           alignItems: "center",
           padding: "20px 24px",
-          borderBottom: "1px solid #e2e8f0",
+          borderBottom: `1px solid ${BW.border.default}`,
         }}>
           <div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", fontFamily: "'DM Sans', sans-serif" }}>CMS Editor</div>
-            <div style={{ fontSize: 13, color: "#64748b", fontFamily: "'DM Sans', sans-serif" }}>Edit transaction states, labels, and descriptions</div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: BW.text.default, fontFamily: BW.font }}>Edit Flows</div>
+            <div style={{ fontSize: 13, color: BW.text.subtle, fontFamily: BW.font }}>Edit transaction states, labels, and descriptions</div>
           </div>
           <button onClick={onClose} style={{
-            background: "#f1f5f9",
+            background: BW.border.subtle,
             border: "none",
             borderRadius: 10,
             width: 36, height: 36,
@@ -677,7 +695,7 @@ function CMSEditor({ data, onUpdate, onClose }) {
         </div>
 
         {/* Tabs */}
-        <div style={{ display: "flex", gap: 0, borderBottom: "1px solid #e2e8f0" }}>
+        <div style={{ display: "flex", gap: 0, borderBottom: `1px solid ${BW.border.default}` }}>
           {[
             { key: "states", label: "Transaction States" },
             { key: "tickets", label: "Ticket Types" },
@@ -689,9 +707,9 @@ function CMSEditor({ data, onUpdate, onClose }) {
               fontSize: 13,
               fontWeight: 600,
               cursor: "pointer",
-              color: activeTab === t.key ? "#6366f1" : "#64748b",
-              borderBottom: activeTab === t.key ? "2px solid #6366f1" : "2px solid transparent",
-              fontFamily: "'DM Sans', sans-serif",
+              color: activeTab === t.key ? BW.brand : BW.text.subtle,
+              borderBottom: activeTab === t.key ? `2px solid ${BW.brand}` : "2px solid transparent",
+              fontFamily: BW.font,
             }}>
               {t.label}
             </button>
@@ -704,52 +722,52 @@ function CMSEditor({ data, onUpdate, onClose }) {
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {Object.entries(data.transactionStates).map(([id, state]) => (
                 <div key={id} style={{
-                  border: "1px solid #e2e8f0",
+                  border: `1px solid ${BW.border.default}`,
                   borderRadius: 12,
                   overflow: "hidden",
                 }}>
                   {editingState === id ? (
-                    <div style={{ padding: 16, background: "#f8fafc" }}>
+                    <div style={{ padding: 16, background: BW.bg.base }}>
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
                         <div>
-                          <label style={{ fontSize: 11, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 4, fontFamily: "'DM Sans', sans-serif" }}>Label</label>
+                          <label style={{ fontSize: 11, fontWeight: 600, color: BW.text.subtle, display: "block", marginBottom: 4, fontFamily: BW.font }}>Label</label>
                           <input value={editForm.label} onChange={e => setEditForm({ ...editForm, label: e.target.value })} style={{
-                            width: "100%", padding: "8px 12px", border: "1px solid #d1d5db", borderRadius: 8, fontSize: 13, fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box",
+                            width: "100%", padding: "8px 12px", border: `1px solid ${BW.border.default}`, borderRadius: 8, fontSize: 13, fontFamily: BW.font, boxSizing: "border-box",
                           }} />
                         </div>
                         <div>
-                          <label style={{ fontSize: 11, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 4, fontFamily: "'DM Sans', sans-serif" }}>Phase</label>
+                          <label style={{ fontSize: 11, fontWeight: 600, color: BW.text.subtle, display: "block", marginBottom: 4, fontFamily: BW.font }}>Phase</label>
                           <select value={editForm.phase} onChange={e => setEditForm({ ...editForm, phase: e.target.value })} style={{
-                            width: "100%", padding: "8px 12px", border: "1px solid #d1d5db", borderRadius: 8, fontSize: 13, fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box",
+                            width: "100%", padding: "8px 12px", border: `1px solid ${BW.border.default}`, borderRadius: 8, fontSize: 13, fontFamily: BW.font, boxSizing: "border-box",
                           }}>
                             {Object.keys(PHASE_CONFIG).map(p => <option key={p} value={p}>{PHASE_CONFIG[p].label}</option>)}
                           </select>
                         </div>
                         <div style={{ gridColumn: "1 / -1" }}>
-                          <label style={{ fontSize: 11, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 4, fontFamily: "'DM Sans', sans-serif" }}>Description</label>
+                          <label style={{ fontSize: 11, fontWeight: 600, color: BW.text.subtle, display: "block", marginBottom: 4, fontFamily: BW.font }}>Description</label>
                           <input value={editForm.desc} onChange={e => setEditForm({ ...editForm, desc: e.target.value })} style={{
-                            width: "100%", padding: "8px 12px", border: "1px solid #d1d5db", borderRadius: 8, fontSize: 13, fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box",
+                            width: "100%", padding: "8px 12px", border: `1px solid ${BW.border.default}`, borderRadius: 8, fontSize: 13, fontFamily: BW.font, boxSizing: "border-box",
                           }} />
                         </div>
                         <div>
-                          <label style={{ fontSize: 11, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 4, fontFamily: "'DM Sans', sans-serif" }}>Buyer Sees</label>
+                          <label style={{ fontSize: 11, fontWeight: 600, color: BW.text.subtle, display: "block", marginBottom: 4, fontFamily: BW.font }}>Buyer Sees</label>
                           <input value={editForm.buyerSees} onChange={e => setEditForm({ ...editForm, buyerSees: e.target.value })} style={{
-                            width: "100%", padding: "8px 12px", border: "1px solid #d1d5db", borderRadius: 8, fontSize: 13, fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box",
+                            width: "100%", padding: "8px 12px", border: `1px solid ${BW.border.default}`, borderRadius: 8, fontSize: 13, fontFamily: BW.font, boxSizing: "border-box",
                           }} />
                         </div>
                         <div>
-                          <label style={{ fontSize: 11, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 4, fontFamily: "'DM Sans', sans-serif" }}>Seller Sees</label>
+                          <label style={{ fontSize: 11, fontWeight: 600, color: BW.text.subtle, display: "block", marginBottom: 4, fontFamily: BW.font }}>Seller Sees</label>
                           <input value={editForm.sellerSees} onChange={e => setEditForm({ ...editForm, sellerSees: e.target.value })} style={{
-                            width: "100%", padding: "8px 12px", border: "1px solid #d1d5db", borderRadius: 8, fontSize: 13, fontFamily: "'DM Sans', sans-serif", boxSizing: "border-box",
+                            width: "100%", padding: "8px 12px", border: `1px solid ${BW.border.default}`, borderRadius: 8, fontSize: 13, fontFamily: BW.font, boxSizing: "border-box",
                           }} />
                         </div>
                       </div>
                       <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
                         <button onClick={() => setEditingState(null)} style={{
-                          padding: "8px 16px", border: "1px solid #d1d5db", borderRadius: 8, background: "#fff", cursor: "pointer", fontSize: 13, fontFamily: "'DM Sans', sans-serif",
+                          padding: "8px 16px", border: `1px solid ${BW.border.default}`, borderRadius: 8, background: "#fff", cursor: "pointer", fontSize: 13, fontFamily: BW.font,
                         }}>Cancel</button>
                         <button onClick={saveEdit} style={{
-                          padding: "8px 16px", border: "none", borderRadius: 8, background: "#6366f1", color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
+                          padding: "8px 16px", border: "none", borderRadius: BW.radius.sm, background: BW.brand, color: BW.text.onFill, cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: BW.font,
                         }}>Save</button>
                       </div>
                     </div>
@@ -763,23 +781,23 @@ function CMSEditor({ data, onUpdate, onClose }) {
                     }} onClick={() => startEdit(id, state)}>
                       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                         <div style={{
-                          background: PHASE_CONFIG[state.phase]?.bg || "#f1f5f9",
-                          color: PHASE_CONFIG[state.phase]?.color || "#64748b",
-                          border: `1px solid ${PHASE_CONFIG[state.phase]?.border || "#e2e8f0"}`,
+                          background: PHASE_CONFIG[state.phase]?.bg || BW.border.subtle,
+                          color: PHASE_CONFIG[state.phase]?.color || BW.text.subtle,
+                          border: `1px solid ${PHASE_CONFIG[state.phase]?.border || BW.border.default}`,
                           borderRadius: 8,
                           padding: "4px 10px",
                           fontSize: 12,
                           fontWeight: 700,
-                          fontFamily: "'DM Sans', sans-serif",
+                          fontFamily: BW.font,
                           minWidth: 36,
                           textAlign: "center",
                         }}>{id}</div>
                         <div>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a", fontFamily: "'DM Sans', sans-serif" }}>{state.label}</div>
-                          <div style={{ fontSize: 11, color: "#94a3b8", fontFamily: "'DM Sans', sans-serif" }}>{state.desc}</div>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: BW.text.default, fontFamily: BW.font }}>{state.label}</div>
+                          <div style={{ fontSize: 11, color: BW.text.disabled, fontFamily: BW.font }}>{state.desc}</div>
                         </div>
                       </div>
-                      <div style={{ fontSize: 11, color: "#94a3b8", fontFamily: "'DM Sans', sans-serif" }}>Click to edit →</div>
+                      <div style={{ fontSize: 11, color: BW.text.disabled, fontFamily: BW.font }}>Click to edit →</div>
                     </div>
                   )}
                 </div>
@@ -790,25 +808,25 @@ function CMSEditor({ data, onUpdate, onClose }) {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               {data.ticketTypes.map(tt => (
                 <div key={tt.id} style={{
-                  border: "1px solid #e2e8f0",
+                  border: `1px solid ${BW.border.default}`,
                   borderRadius: 12,
                   padding: 16,
                 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                     <span style={{ fontSize: 24 }}>{tt.icon}</span>
                     <div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", fontFamily: "'DM Sans', sans-serif" }}>{tt.name}</div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: BW.text.default, fontFamily: BW.font }}>{tt.name}</div>
                       <div style={{
                         fontSize: 10,
                         fontWeight: 600,
                         color: CATEGORY_COLORS[tt.category],
                         textTransform: "uppercase",
                         letterSpacing: 1,
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: BW.font,
                       }}>{tt.category} · Type {tt.id}</div>
                     </div>
                   </div>
-                  <div style={{ fontSize: 12, color: "#64748b", fontFamily: "'DM Sans', sans-serif" }}>{tt.description}</div>
+                  <div style={{ fontSize: 12, color: BW.text.subtle, fontFamily: BW.font }}>{tt.description}</div>
                 </div>
               ))}
             </div>
@@ -847,15 +865,13 @@ export default function TransactionStateExplorer() {
   return (
     <div style={{
       minHeight: "100vh",
-      background: "#f8fafc",
-      fontFamily: "'DM Sans', sans-serif",
+      background: BW.bg.base,
+      fontFamily: BW.font,
     }}>
-      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-
       {/* Header */}
       <div style={{
-        background: "#0f172a",
-        padding: "24px 32px",
+        background: BW.brandDark,
+        padding: "20px 32px",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
@@ -863,8 +879,8 @@ export default function TransactionStateExplorer() {
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4 }}>
             <div style={{
-              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-              borderRadius: 10,
+              background: BW.brand,
+              borderRadius: BW.radius.md,
               width: 36,
               height: 36,
               display: "flex",
@@ -872,29 +888,29 @@ export default function TransactionStateExplorer() {
               justifyContent: "center",
               fontSize: 18,
             }}>🎫</div>
-            <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: "#fff", letterSpacing: -0.5 }}>
-              Transaction Flow Explorer
+            <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: BW.text.onFill, letterSpacing: -0.3 }}>
+              Order Flow Explorer
             </h1>
           </div>
-          <p style={{ margin: 0, fontSize: 13, color: "#94a3b8" }}>
-            Interactive state machine explorer · Select a ticket type to visualize its transaction lifecycle
+          <p style={{ margin: 0, fontSize: 13, color: BW.brandLight }}>
+            Post-purchase order flow explorer · Select a ticket type to visualize its order lifecycle
           </p>
         </div>
         <button onClick={() => setShowCMS(true)} style={{
-          background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-          color: "#fff",
+          background: BW.bg.surface,
+          color: BW.brand,
           border: "none",
-          borderRadius: 10,
+          borderRadius: BW.radius.sm,
           padding: "10px 20px",
           fontSize: 13,
-          fontWeight: 700,
+          fontWeight: 600,
           cursor: "pointer",
           display: "flex",
           alignItems: "center",
           gap: 6,
-          fontFamily: "'DM Sans', sans-serif",
+          fontFamily: BW.font,
         }}>
-          ⚙️ CMS Editor
+          Edit Flows
         </button>
       </div>
 
@@ -902,8 +918,8 @@ export default function TransactionStateExplorer() {
         {/* Left sidebar - Ticket Types */}
         <div style={{
           width: 280,
-          borderRight: "1px solid #e2e8f0",
-          background: "#fff",
+          borderRight: `1px solid ${BW.border.subtle}`,
+          background: BW.bg.surface,
           display: "flex",
           flexDirection: "column",
           flexShrink: 0,
@@ -915,13 +931,13 @@ export default function TransactionStateExplorer() {
               onChange={e => setSearchQuery(e.target.value)}
               style={{
                 width: "100%",
-                padding: "8px 12px",
-                border: "1px solid #e2e8f0",
-                borderRadius: 8,
+                padding: "14px 16px",
+                border: `1px solid ${BW.border.default}`,
+                borderRadius: 12,
                 fontSize: 13,
-                fontFamily: "'DM Sans', sans-serif",
+                fontFamily: BW.font,
                 boxSizing: "border-box",
-                background: "#f8fafc",
+                background: BW.bg.base,
               }}
             />
           </div>
@@ -932,15 +948,15 @@ export default function TransactionStateExplorer() {
               <button key={cat} onClick={() => setCategoryFilter(cat)} style={{
                 padding: "4px 10px",
                 border: "1px solid",
-                borderColor: categoryFilter === cat ? (CATEGORY_COLORS[cat] || "#6366f1") : "#e2e8f0",
-                borderRadius: 6,
-                background: categoryFilter === cat ? (CATEGORY_COLORS[cat] || "#6366f1") + "15" : "#fff",
-                color: categoryFilter === cat ? (CATEGORY_COLORS[cat] || "#6366f1") : "#64748b",
+                borderColor: categoryFilter === cat ? (CATEGORY_COLORS[cat] || BW.brand) : BW.border.default,
+                borderRadius: BW.radius.sm,
+                background: categoryFilter === cat ? (CATEGORY_COLORS[cat] || BW.brand) + "15" : BW.bg.surface,
+                color: categoryFilter === cat ? (CATEGORY_COLORS[cat] || BW.brand) : BW.text.subtle,
                 fontSize: 11,
                 fontWeight: 600,
                 cursor: "pointer",
                 textTransform: "capitalize",
-                fontFamily: "'DM Sans', sans-serif",
+                fontFamily: BW.font,
               }}>
                 {cat}
               </button>
@@ -963,25 +979,25 @@ export default function TransactionStateExplorer() {
                     borderRadius: 12,
                     cursor: "pointer",
                     marginBottom: 4,
-                    background: isSelected ? "#6366f1" + "10" : "transparent",
-                    border: isSelected ? "1px solid #c7d2fe" : "1px solid transparent",
+                    background: isSelected ? BW.brand + "12" : "transparent",
+                    border: isSelected ? `1px solid ${BW.border.accent}` : "1px solid transparent",
                     transition: "all 0.15s",
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <span style={{ fontSize: 22 }}>{tt.icon}</span>
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: isSelected ? "#4338ca" : "#0f172a" }}>{tt.name}</div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: isSelected ? BW.brandDark : "#091218" }}>{tt.name}</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
                         <span style={{
                           fontSize: 10,
                           fontWeight: 700,
-                          color: CATEGORY_COLORS[tt.category],
-                          background: CATEGORY_COLORS[tt.category] + "15",
-                          padding: "1px 6px",
-                          borderRadius: 4,
+                          color: "#091218",
+                          background: "#ECEEEF",
+                          padding: "6px 8px",
+                          borderRadius: 6,
                         }}>{tt.category}</span>
-                        <span style={{ fontSize: 10, color: "#94a3b8" }}>Type {tt.id}</span>
+                        <span style={{ fontSize: 10, color: BW.text.disabled }}>Type {tt.id}</span>
                       </div>
                     </div>
                   </div>
@@ -1000,11 +1016,11 @@ export default function TransactionStateExplorer() {
               alignItems: "center",
               justifyContent: "center",
               height: "100%",
-              color: "#94a3b8",
+              color: BW.text.disabled,
               gap: 12,
             }}>
-              <div style={{ fontSize: 48 }}>🎫</div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: "#475569" }}>Select a ticket type</div>
+              <img src={emptyStateIllustration} alt="" style={{ width: 120, aspectRatio: "1.48 / 1" }} />
+              <div style={{ fontSize: 18, fontWeight: 700, color: BW.text.subtle }}>Select a ticket type</div>
               <div style={{ fontSize: 14 }}>Choose from the sidebar to explore its transaction flow</div>
             </div>
           ) : (
@@ -1021,37 +1037,37 @@ export default function TransactionStateExplorer() {
                   padding: "20px 24px",
                   background: "#fff",
                   borderRadius: 16,
-                  border: "1px solid #e2e8f0",
+                  border: `1px solid ${BW.border.default}`,
                 }}>
                   <span style={{ fontSize: 40 }}>{currentTicket?.icon}</span>
                   <div style={{ flex: "1 1 200px", minWidth: 0 }}>
-                    <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: "#0f172a" }}>{currentTicket?.name}</h2>
+                    <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: BW.text.default }}>{currentTicket?.name}</h2>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 8px", marginTop: 4 }}>
                       <span style={{
-                        fontSize: 11,
+                        fontSize: 10,
                         fontWeight: 700,
-                        color: CATEGORY_COLORS[currentTicket?.category],
-                        background: CATEGORY_COLORS[currentTicket?.category] + "15",
-                        padding: "2px 8px",
-                        borderRadius: 4,
+                        color: "#091218",
+                        background: "#ECEEEF",
+                        padding: "6px 8px",
+                        borderRadius: 6,
                         whiteSpace: "nowrap",
                       }}>{currentTicket?.category}</span>
                       <span style={{
-                        fontSize: 11,
-                        fontWeight: 600,
-                        color: "#64748b",
-                        background: "#f1f5f9",
-                        padding: "2px 8px",
-                        borderRadius: 4,
+                        fontSize: 10,
+                        fontWeight: 700,
+                        color: "#091218",
+                        background: "#ECEEEF",
+                        padding: "6px 8px",
+                        borderRadius: 6,
                         whiteSpace: "nowrap",
                       }}>Delivery: {currentTicket?.delivery}</span>
                       <span style={{
-                        fontSize: 11,
-                        fontWeight: 600,
-                        color: "#64748b",
-                        background: "#f1f5f9",
-                        padding: "2px 8px",
-                        borderRadius: 4,
+                        fontSize: 10,
+                        fontWeight: 700,
+                        color: "#091218",
+                        background: "#ECEEEF",
+                        padding: "6px 8px",
+                        borderRadius: 6,
                         whiteSpace: "nowrap",
                       }}>ETicketTypeID: {currentTicket?.id}</span>
                     </div>
@@ -1073,12 +1089,12 @@ export default function TransactionStateExplorer() {
                 {/* Notes */}
                 {currentFlow.notes && (
                   <div style={{
-                    background: "#eff6ff",
-                    border: "1px solid #bfdbfe",
-                    borderRadius: 12,
+                    background: BW.info.bg,
+                    border: `1px solid ${BW.info.border}`,
+                    borderRadius: BW.radius.md,
                     padding: "12px 16px",
                     fontSize: 13,
-                    color: "#1e40af",
+                    color: BW.info.text,
                     marginBottom: 20,
                     lineHeight: 1.5,
                   }}>
@@ -1097,47 +1113,86 @@ export default function TransactionStateExplorer() {
                 />
 
                 {/* Shipment states */}
-                {currentFlow.shipmentStates && (
-                  <div style={{
-                    background: "#fff",
-                    border: "1px solid #e2e8f0",
-                    borderRadius: 12,
-                    padding: 16,
-                    marginBottom: 16,
-                  }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: "#d97706", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
-                      📦 Shipment State Flow
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 6 }}>
-                      {currentFlow.shipmentStates.map((s, i) => {
-                        const shipNames = { 1: "Pending Creation", 2: "In Progress", 5: "Pending Ship", 10: "Pending Pickup", 15: "In Transit", 20: "Delivered" };
-                        return (
-                          <div key={s} style={{ display: "inline-flex", alignItems: "center" }}>
-                            <div style={{
-                              background: "#fffbeb",
-                              border: "1px solid #fde68a",
-                              borderRadius: 8,
-                              padding: "6px 10px",
-                              fontSize: 11,
-                              fontWeight: 600,
-                              color: "#92400e",
+                {currentFlow.shipmentStates && (() => {
+                  const shipNames = { 1: "Pending Creation", 2: "In Progress", 5: "Pending Ship", 10: "Pending Pickup", 15: "In Transit", 20: "Delivered" };
+                  return (
+                    <div style={{
+                      background: BW.bg.surface,
+                      border: `1px solid ${BW.border.default}`,
+                      borderRadius: BW.radius.lg,
+                      padding: "16px 20px",
+                      marginBottom: 16,
+                    }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: BW.text.subtle, marginBottom: 12, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                        Shipment State Flow
+                      </div>
+                      <div style={{ display: "flex", alignItems: "stretch", gap: 0 }}>
+                        {currentFlow.shipmentStates.map((s, i) => {
+                          const isLast = i === currentFlow.shipmentStates.length - 1;
+                          const isFirst = i === 0;
+                          return (
+                            <div key={s} style={{
+                              flex: 1,
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "center",
+                              position: "relative",
                             }}>
-                              <div style={{ fontSize: 9, opacity: 0.6 }}>Ship {s}</div>
-                              {shipNames[s] || `State ${s}`}
+                              <div style={{
+                                width: 28,
+                                height: 28,
+                                borderRadius: "50%",
+                                background: isLast ? BW.success.fill : BW.brand,
+                                color: BW.text.onFill,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                fontSize: 12,
+                                fontWeight: 600,
+                                zIndex: 1,
+                              }}>
+                                {isLast ? "✓" : i + 1}
+                              </div>
+                              {!isLast && (
+                                <div style={{
+                                  position: "absolute",
+                                  top: 13,
+                                  left: "calc(50% + 16px)",
+                                  right: "calc(-50% + 16px)",
+                                  height: 2,
+                                  background: BW.border.accent,
+                                }} />
+                              )}
+                              <div style={{
+                                marginTop: 8,
+                                fontSize: 10,
+                                fontWeight: 500,
+                                color: BW.text.default,
+                                textAlign: "center",
+                                lineHeight: 1.3,
+                              }}>
+                                {shipNames[s] || `State ${s}`}
+                              </div>
+                              <div style={{
+                                fontSize: 9,
+                                color: BW.text.disabled,
+                                marginTop: 2,
+                              }}>
+                                Ship {s}
+                              </div>
                             </div>
-                            {i < currentFlow.shipmentStates.length - 1 && <FlowArrow compact />}
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {/* Alternative paths */}
                 {currentFlow.alternativePaths?.length > 0 && (
                   <div>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: BW.text.default }}>
                         Alternative Paths
                       </div>
                       <div style={{
@@ -1145,8 +1200,8 @@ export default function TransactionStateExplorer() {
                         alignItems: "center",
                         gap: 12,
                         fontSize: 11,
-                        color: "#64748b",
-                        fontFamily: "'DM Sans', sans-serif",
+                        color: BW.text.subtle,
+                        fontFamily: BW.font,
                       }}>
                         <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
                           <span style={{
@@ -1163,7 +1218,7 @@ export default function TransactionStateExplorer() {
                             display: "inline-block",
                             width: 10, height: 10,
                             borderRadius: 3,
-                            background: "#e2e8f0",
+                            background: BW.border.default,
                             opacity: 0.5,
                           }} />
                           Same as happy path
@@ -1193,9 +1248,9 @@ export default function TransactionStateExplorer() {
                   padding: "16px 20px",
                   background: "#fff",
                   borderRadius: 12,
-                  border: "1px solid #e2e8f0",
+                  border: `1px solid ${BW.border.default}`,
                 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", marginRight: 8, alignSelf: "center" }}>PHASES:</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: BW.text.subtle, marginRight: 8, alignSelf: "center" }}>PHASES:</div>
                   {Object.entries(PHASE_CONFIG).map(([key, cfg]) => (
                     <div key={key} style={{
                       display: "flex",
@@ -1203,7 +1258,7 @@ export default function TransactionStateExplorer() {
                       gap: 4,
                     }}>
                       <div style={{ width: 10, height: 10, borderRadius: 3, background: cfg.color }} />
-                      <span style={{ fontSize: 11, color: "#475569", fontWeight: 500 }}>{cfg.label}</span>
+                      <span style={{ fontSize: 11, color: BW.text.subtle, fontWeight: 500 }}>{cfg.label}</span>
                     </div>
                   ))}
                 </div>
@@ -1212,15 +1267,15 @@ export default function TransactionStateExplorer() {
               {/* Right panel - Phone preview */}
               <div style={{
                 width: 300,
-                borderLeft: "1px solid #e2e8f0",
-                background: "#f1f5f9",
+                borderLeft: `1px solid ${BW.border.default}`,
+                background: BW.bg.base,
                 padding: "24px 20px",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
                 gap: 16,
               }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 1 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: BW.text.subtle, textTransform: "uppercase", letterSpacing: 1 }}>
                   Product Preview
                 </div>
                 {activeStateData ? (
@@ -1235,12 +1290,12 @@ export default function TransactionStateExplorer() {
                     alignItems: "center",
                     justifyContent: "center",
                     height: 460,
-                    color: "#94a3b8",
+                    color: BW.text.disabled,
                     textAlign: "center",
                     gap: 8,
                   }}>
                     <div style={{ fontSize: 32 }}>👆</div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: "#64748b" }}>Click a state node</div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: BW.text.subtle }}>Click a state node</div>
                     <div style={{ fontSize: 12 }}>to preview the buyer & seller experience</div>
                   </div>
                 )}
@@ -1251,11 +1306,11 @@ export default function TransactionStateExplorer() {
                     borderRadius: 12,
                     padding: 14,
                     width: "100%",
-                    border: "1px solid #e2e8f0",
+                    border: `1px solid ${BW.border.default}`,
                   }}>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>State Details</div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", marginBottom: 2 }}>{activeStateData.name}</div>
-                    <div style={{ fontSize: 12, color: "#64748b", lineHeight: 1.4 }}>{activeStateData.desc}</div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: BW.text.disabled, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>State Details</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: BW.text.default, marginBottom: 2 }}>{activeStateData.name}</div>
+                    <div style={{ fontSize: 12, color: BW.text.subtle, lineHeight: 1.4 }}>{activeStateData.desc}</div>
                     <div style={{
                       marginTop: 8,
                       display: "flex",
@@ -1266,8 +1321,8 @@ export default function TransactionStateExplorer() {
                         fontWeight: 700,
                         background: PHASE_CONFIG[activeStateData.phase]?.bg,
                         color: PHASE_CONFIG[activeStateData.phase]?.color,
-                        padding: "2px 8px",
-                        borderRadius: 4,
+                        padding: "6px 8px",
+                        borderRadius: 6,
                         border: `1px solid ${PHASE_CONFIG[activeStateData.phase]?.border}`,
                       }}>{PHASE_CONFIG[activeStateData.phase]?.label}</span>
                     </div>
